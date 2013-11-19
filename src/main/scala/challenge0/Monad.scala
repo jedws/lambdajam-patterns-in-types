@@ -28,6 +28,7 @@ object Monad {
       Monad[M].bind(a)(f)
       
     def filter(f: A => Boolean) = a
+    def withFilter(f: A => Boolean) = a
   }
 }
 
