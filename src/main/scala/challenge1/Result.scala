@@ -2,7 +2,6 @@ package challenge1
 
 import challenge0._, EqualSyntax._
 
-
 /*
  * A result type that represents either an exception or an error message or a value.
  */
@@ -66,6 +65,7 @@ object Result {
   implicit def ResultMonad: Monad[Result] = new Monad[Result] {
     def point[A](a: => A) = ok(a)
     def bind[A, B](a: Result[A])(f: A => Result[B]) = a flatMap f
+    override def map[A, B](a: Result[A])(f: A => B) = a map f
   }
 
   implicit def ResultEqual[A: Equal] =
