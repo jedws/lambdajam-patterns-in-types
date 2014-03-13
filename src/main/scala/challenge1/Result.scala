@@ -35,7 +35,6 @@ sealed trait Result[A] {
   def map[B](f: A => B): Result[B] =
     ???
 
-
   /*
    * Exercise 1.3:
    *
