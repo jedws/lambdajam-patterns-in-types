@@ -5,6 +5,12 @@ import Prop.forAll
 
 object Laws {
   object monad {
+    def identity[F[_], A](implicit F: Functor[F], A: Arbitrary[F[A]], E: Equal[F[A]]) =
+      forAll(FunctorLaws.identity[F, A] _)
+
+    def associativeMap[F[_], A, B, C](implicit F: Functor[F], A: Arbitrary[F[A]], B: Arbitrary[A => B], C: Arbitrary[B => C], E: Equal[F[C]]) =
+      forAll(FunctorLaws.associativeMap[F, A, B, C] _)
+
     def associativity[F[_], A, B, C](implicit F: Monad[F], A: Arbitrary[F[A]], B: Arbitrary[A => F[B]], C: Arbitrary[B => F[C]], E: Equal[F[C]]) =
       forAll(MonadLaws.associative[F, A, B, C] _)
 
@@ -16,6 +22,7 @@ object Laws {
 
     def laws[F[_]](implicit F: Monad[F], A: Arbitrary[F[Int]], B: Arbitrary[Int => F[Int]], C: Arbitrary[F[Int => Int]], E: Equal[F[Int]]) =
       new Properties("monad") {
+        property("functor-associative") = associativeMap[F, Int, Int, Int]
         property("associativity") = associativity[F, Int, Int, Int]
         property("right identity") = rightIdentity[F, Int]
         property("left identity") = leftIdentity[F, Int, Int]
