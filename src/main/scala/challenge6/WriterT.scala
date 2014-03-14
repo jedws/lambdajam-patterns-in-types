@@ -77,6 +77,7 @@ object WriterT {
     new Monad[WriterT_[F, W]#l] {
       def point[A](a: => A) = WriterT(F.point((W.zero, a)))
       def bind[A, B](a: WriterT[F, W, A])(f: A => WriterT[F, W, B]) = a flatMap f
+      def map[A, B](a: WriterT[F, W, A])(f: A => B) = a map f
     }
 
   implicit def WriterTEqual[F[_], W, A](implicit E: Equal[F[(W, A)]]) =

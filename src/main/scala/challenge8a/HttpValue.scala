@@ -37,5 +37,6 @@ object HttpValue {
   implicit def HttpValueMonad: Monad[HttpValue] = new Monad[HttpValue] {
     def point[A](a: => A) = ok(a)
     def bind[A, B](a: HttpValue[A])(f: A => HttpValue[B]) = a flatMap f
+    def map[A, B](a: HttpValue[A])(f: A => B) = a map f
   }
 }

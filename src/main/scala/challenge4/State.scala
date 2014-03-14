@@ -101,5 +101,6 @@ object State {
     new Monad[State_[S]#l] {
       def point[A](a: => A) = value(a)
       def bind[A, B](a: State[S, A])(f: A => State[S, B]) = a flatMap f
+      def map[A, B](a: State[S, A])(f: A => B) = a map f
     }
 }

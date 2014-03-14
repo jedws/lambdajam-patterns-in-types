@@ -76,11 +76,9 @@ object Reader {
 
   implicit def ReaderMonad[R]: Monad[Reader_[R]#l] =
     new Monad[Reader_[R]#l] {
-      def point[A](a: => A): Reader[R, A] =
-        value(a)
-
-      def bind[A, B](r: Reader[R, A])(f: A => Reader[R, B]) =
-        r flatMap f
+      def point[A](a: => A): Reader[R, A] = value(a)
+      def bind[A, B](r: Reader[R, A])(f: A => Reader[R, B]) = r flatMap f
+      def map[A, B](r: Reader[R, A])(f: A => B) = r map f
     }
 
   /*

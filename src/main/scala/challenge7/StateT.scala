@@ -105,6 +105,7 @@ object StateT {
     new Monad[StateT_[F, S]#l] {
       def point[A](a: => A) = StateT(s => F.point((s, a)))
       def bind[A, B](a: StateT[F, S, A])(f: A => StateT[F, S, B]) = a flatMap f
+      def map[A, B](a: StateT[F, S, A])(f: A => B) = a map f
     }
 
   /*

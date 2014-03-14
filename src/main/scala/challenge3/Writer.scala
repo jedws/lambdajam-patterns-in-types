@@ -69,6 +69,7 @@ object Writer {
     new Monad[Writer_[W]#l] {
       def point[A](a: => A) = value[W, A](a)
       def bind[A, B](a: Writer[W, A])(f: A => Writer[W, B]) = a flatMap f
+      def map[A, B](a: Writer[W, A])(f: A => B) = a map f
     }
 
   implicit def WriterEqual[W: Equal, A: Equal] =

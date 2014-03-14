@@ -81,6 +81,7 @@ object ReaderT {
     new Monad[ReaderT_[F, R]#l] {
       def point[A](a: => A) = ReaderT(_ => F.point(a))
       def bind[A, B](a: ReaderT[F, R, A])(f: A => ReaderT[F, R, B]) = a flatMap f
+      def map[A, B](a: ReaderT[F, R, A])(f: A => B) = a map f
     }
 
   /*

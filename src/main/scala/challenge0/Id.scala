@@ -12,6 +12,7 @@ object Id {
   implicit def IdMonad: Monad[Id] = new Monad[Id] {
     def point[A](a: => A) = Id(a)
     def bind[A, B](a: Id[A])(f: A => Id[B]): Id[B] = a flatMap f
+    def map[A, B](a: Id[A])(f: A => B): Id[B] = a map f
   }
 
   implicit def IdEqual[A: Equal]: Equal[Id[A]] =

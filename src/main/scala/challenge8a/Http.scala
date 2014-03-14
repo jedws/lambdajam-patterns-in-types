@@ -110,6 +110,7 @@ object Http {
     new Monad[Http] {
       def point[A](a: => A) = ???
       def bind[A, B](a: Http[A])(f: A => Http[B]) = ???
+      def map[A, B](a: Http[A])(f: A => B) = ???
     }
 }
 

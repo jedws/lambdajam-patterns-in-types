@@ -3,7 +3,9 @@ package challenge0
 trait Monad[F[_]] extends Functor[F] {
   def point[A](a: => A): F[A]
   def bind[A, B](a: F[A])(f: A => F[B]): F[B]
-  def map[A, B](a: F[A])(f: A => B): F[B] = bind(a)(b => point(f(b)))
+  // even though we can provide a default implementation in terms of bind and point, 
+  // we want to test the map methods, so we leave it abstract
+  // def map[A, B](a: F[A])(f: A => B): F[B] = bind(a)(b => point(f(b)))
 }
 
 object Monad {
@@ -13,11 +15,13 @@ object Monad {
   implicit def OptionMonad: Monad[Option] = new Monad[Option] {
     def point[A](a: => A) = Some(a)
     def bind[A, B](a: Option[A])(f: A => Option[B]): Option[B] = a flatMap f
+    def map[A, B](a: Option[A])(f: A => B): Option[B] = a map f
   }
 
   implicit def ListMonad: Monad[List] = new Monad[List] {
     def point[A](a: => A) = List(a)
     def bind[A, B](a: List[A])(f: A => List[B]): List[B] = a flatMap f
+    def map[A, B](a: List[A])(f: A => B): List[B] = a map f
   }
 
   implicit class MonadOps[M[_]: Monad, A](a: M[A]) {
