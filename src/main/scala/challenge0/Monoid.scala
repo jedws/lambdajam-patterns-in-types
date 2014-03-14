@@ -6,6 +6,7 @@ trait Monoid[A] {
 }
 
 object Monoid {
+  // Monoid[A].zero
   def apply[A: Monoid]: Monoid[A] =
     implicitly[Monoid[A]]
 
@@ -17,6 +18,9 @@ object Monoid {
 
   implicit def ListMonoid[A] =
     from[List[A]](_ ++ _, Nil)
+
+  implicit def VectorMonoid[A] =
+    from[Vector[A]](_ ++ _, Vector())
 
   implicit def StringMonoid =
     from[String](_ + _, "")
