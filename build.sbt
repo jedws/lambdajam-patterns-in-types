@@ -13,4 +13,11 @@ resolvers ++= Seq(
   "oss releases" at "http://oss.sonatype.org/content/repositories/releases"
 )
 
-scalacOptions in ThisBuild ++= Seq("-deprecation", "-unchecked", "-feature", "-language:_", "-Ywarn-value-discard",  "-Xfatal-warnings")
+scalacOptions in ThisBuild ++= Seq(
+  "-deprecation"
+, "-unchecked"
+, "-feature"
+, "-language:_"
+, "-Ywarn-value-discard"
+, "-Xfatal-warnings"
+)
