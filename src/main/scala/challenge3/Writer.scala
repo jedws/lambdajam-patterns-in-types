@@ -1,6 +1,6 @@
 package challenge3
 
-import challenge0._, EqualSyntax._
+import challenge0._, EqualSyntax._, Monoid._
 
 /*
  * A writer data type that represents the pair of some
@@ -73,7 +73,7 @@ object Writer {
     }
 
   implicit def WriterEqual[W: Equal, A: Equal] =
-    Equal.from[Writer[W, A]]((a, b) => (a.log, a.value)  === (b.log, b.value))
+    Equal.from[Writer[W, A]]((a, b) => (a.log, a.value) === (b.log, b.value))
 
   implicit def WriterMoniod[W: Monoid, A: Monoid]: Monoid[Writer[W, A]] =
     new Monoid[Writer[W, A]] {

@@ -24,6 +24,10 @@ object Monoid {
 
   implicit def StringMonoid =
     from[String](_ + _, "")
+
+  implicit class MonoidOps[A: Monoid](a: A) {
+    def |+|(b: A) = Monoid[A].append(a, b)
+  }
 }
 
 object MonoidLaws {
