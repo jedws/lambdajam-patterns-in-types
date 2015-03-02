@@ -11,10 +11,10 @@ import scala.collection.generic.CanBuildFrom
 
 object HttpArbitraries {
 
-  implicit def buildableCanBuildFrom[T, C[_]](implicit c: CanBuildFrom[C[_], T, C[T]]) =
-    new Buildable[T, C] {
-      def builder = c.apply
-    }
+  // implicit def buildableCanBuildFrom[T, C[_]](implicit c: CanBuildFrom[C[_], T, C[T]]) =
+  //   new Buildable[T, C] {
+  //     def builder = c.apply
+  //   }
 
   implicit val methodArbitrary: Arbitrary[Method] =
     Arbitrary(oneOf(Options, Get, Head, Post, Put, Delete, Trace, Connect))
