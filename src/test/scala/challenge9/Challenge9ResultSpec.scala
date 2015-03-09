@@ -13,10 +13,12 @@ object Challenge9ResultSpec extends test.Spec {
 
     "satisfy monad laws" ! monad.laws[Result]
 
-    "fold with fail" ! prop((e: Error) =>
-      Result.fail[Int](e).fold(_ === e, _ => false))
+    "fold with fail" ! prop { (e: Error) =>
+      Result.fail[Int](e).fold { _ === e } { _ => false }
+    }
 
-    "fold with ok" ! prop((i: Int) =>
-      Result.ok[Int](i).fold(_ => false, _ === i))
+    "fold with ok" ! prop { (i: Int) =>
+      Result.ok[Int](i).fold { _ => false } { _ === i }
+    }
   }
 }

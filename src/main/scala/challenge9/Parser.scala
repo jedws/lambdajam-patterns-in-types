@@ -153,6 +153,9 @@ object Parser {
    *
    * scala> Parser.satisfy(c => c == 'h').run("hello")
    *  = Ok(ParseState(ello,h))
+   *
+   * scala> Parser.satisfy(c => c == 'h').run("")
+   *  = Fail(NotEnoughInput)
    */
   def satisfy(pred: Char => Boolean): Parser[Char] =
     ???

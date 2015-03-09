@@ -34,15 +34,13 @@ sealed trait Result[A] {
    *
    * Hint: Try using pattern matching.
    *
-   * scala> Ok(1).fold(_ => 0, x => x)
+   * scala> Ok(1).fold(_ => 0)(x => x)
    *  = 1
    *
-   * scala> Fail[Int](NotEnoughInput).fold(_ => 0, x => x)
+   * scala> Fail[Int](NotEnoughInput).fold(_ => 0)(x => x)
    *  = 0
    */
-  def fold[X](
-    fail: Error => X,
-    ok: A => X): X =
+  def fold[X](fail: Error => X)(ok: A => X): X =
     ???
 
   /*
@@ -171,10 +169,11 @@ object Result {
   implicit def ResultEqual[A: Equal] = new Equal[Result[A]] {
     import Equal._
     def equal(a1: Result[A], a2: Result[A]) =
-      a1.fold(
-        e => a2.fold(_ === e, _ => false),
-        a => a2.fold(_ => false, _ === a)
-      )
+      a1.fold {
+        e => a2.fold { _ === e } { _ => false }
+      } {
+        a => a2.fold { _ => false } { _ === a }
+      }
   }
 }
 
