@@ -59,7 +59,7 @@ case class Parser[A](run: String => Result[ParseState[A]]) {
    * scala> (Parser.failed(NotEnoughInput) >>> Parser.value(7)).run("hello")
    *   = Fail(NotEnoughInput)
    */
-  def >>>[B](parser: => Parser[B]): Parser[B] =
+  def >>[B](parser: => Parser[B]): Parser[B] =
     ???
 
   /**
