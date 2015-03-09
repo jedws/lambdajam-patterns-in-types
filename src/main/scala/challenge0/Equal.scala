@@ -23,6 +23,9 @@ object Equal extends EqualSyntax {
   implicit def IntEqual =
     derived[Int]
 
+  implicit def CharEqual =
+    derived[Char]
+
   implicit def OptionEqual[A: Equal]: Equal[Option[A]] =
     from[Option[A]]({
       case (Some(a1), Some(a2)) => Equal[A].equal(a1, a2)
