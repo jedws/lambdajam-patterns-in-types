@@ -4,7 +4,7 @@ trait Equal[A] {
   def equal(a1: A, a2: A): Boolean
 }
 
-object Equal {
+object Equal extends EqualSyntax {
   def apply[A: Equal]: Equal[A] =
     implicitly[Equal[A]]
 
@@ -48,17 +48,18 @@ object Equal {
 
   implicit def ThrowableEqual =
     derived[Throwable]
+
 }
 
-case class EqualSyntax[A](value: A) {
-  def ===(other: A)(implicit A: Equal[A]) =
-    Equal[A].equal(value, other)
+trait EqualSyntax {
+  implicit class EqualOps[A](value: A) {
+    def ===(other: A)(implicit A: Equal[A]) =
+      Equal[A].equal(value, other)
+  }
+
 }
 
-object EqualSyntax {
-  implicit def ToEqualSyntax[A](value: A) =
-    EqualSyntax(value)
-}
+object EqualSyntax extends EqualSyntax
 
 object EqualLaws {
   def commutative[A: Equal](a1: A, a2: A): Boolean =

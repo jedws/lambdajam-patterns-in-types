@@ -1,5 +1,7 @@
 package challenge9
 
+import challenge0._
+
 /*
  * Handling errors without exceptions....
  * ======================================
@@ -9,17 +11,18 @@ package challenge9
  * A well-typed set of errors that can occur.
  */
 sealed trait Error
-case class NotANumber(s: String) extends Error
-case class InvalidOperation(s: String) extends Error
-case class UnexpectedInput(s: String) extends Error
-case object NotEnoughInput extends Error
+object Error {
+  case class NotANumber(s: String) extends Error
+  case class InvalidOperation(s: String) extends Error
+  case class UnexpectedInput(s: String) extends Error
+  case object NotEnoughInput extends Error
+
+  implicit val ErrorEqual: Equal[Error] = Equal.derived
+}
 
 /*
  * A result type that represents one of our errors or a success.
  */
-case class Fail[A](error: Error) extends Result[A]
-case class Ok[A](value: A) extends Result[A]
-
 sealed trait Result[A] {
   /*
    * Exercise 1:
@@ -39,8 +42,7 @@ sealed trait Result[A] {
    */
   def fold[X](
     fail: Error => X,
-    ok: A => X
-  ): X =
+    ok: A => X): X =
     ???
 
   /*
@@ -125,14 +127,17 @@ sealed trait Result[A] {
 }
 
 object Result {
+  case class Fail[A](error: Error) extends Result[A]
+  case class Ok[A](value: A) extends Result[A]
+
   def notANumber[A](s: String): Result[A] =
-    fail(NotANumber(s))
+    fail(Error.NotANumber(s))
 
   def unexpectedInput[A](s: String): Result[A] =
-    fail(UnexpectedInput(s))
+    fail(Error.UnexpectedInput(s))
 
   def notEnoughInput[A]: Result[A] =
-    fail(NotEnoughInput)
+    fail(Error.NotEnoughInput)
 
   def ok[A](value: A): Result[A] =
     Ok(value)
@@ -155,8 +160,23 @@ object Result {
    */
   def sequence[A](xs: List[Result[A]]): Result[List[A]] =
     ???
-}
 
+  implicit object ResultMonad extends Monad[Result] {
+    def map[A, B](a: Result[A])(f: A => B) = a map f
+
+    def bind[A, B](a: Result[A])(f: A => Result[B]) = a flatMap f
+    def point[A](a: => A): Result[A] = ok(a)
+  }
+
+  implicit def ResultEqual[A: Equal] = new Equal[Result[A]] {
+    import Equal._
+    def equal(a1: Result[A], a2: Result[A]) =
+      a1.fold(
+        e => a2.fold(_ === e, _ => false),
+        a => a2.fold(_ => false, _ === a)
+      )
+  }
+}
 
 /*
  * *Challenge* Exercise 7: The worlds most trivial calculator.
@@ -196,7 +216,7 @@ object ResultExample {
    * Compute an `answer`, by running operation for n and m.
    */
   def calculate(op: Operation, n: Int, m: Int): Int =
-     ???
+    ???
 
   /*
    * Attempt to compute an `answer`, by:
@@ -208,7 +228,7 @@ object ResultExample {
    * hint: use flatMap / map
    */
   def attempt(op: String, n: String, m: String): Result[Int] =
-     ???
+    ???
 
   /*
    * Run a calculation by pattern matching three elements off the input arguments,
@@ -219,7 +239,7 @@ object ResultExample {
 
   def main(args: Array[String]) =
     println(run(args.toList) match {
-      case Ok(result) => s"result: ${result}"
-      case Fail(error) => s"failed: ${error}"
+      case Result.Ok(result)  => s"result: ${result}"
+      case Result.Fail(error) => s"failed: ${error}"
     })
 }
