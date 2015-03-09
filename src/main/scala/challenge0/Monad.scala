@@ -30,9 +30,14 @@ object Monad {
 
     def flatMap[B](f: A => M[B]) =
       Monad[M].bind(a)(f)
-      
+
     def filter(f: A => Boolean) = a
     def withFilter(f: A => Boolean) = a
+  }
+
+  implicit class IdOps[A](val a: A) extends AnyVal {
+    def point[M[_]: Monad]: M[A] =
+      Monad[M].point(a)
   }
 }
 
