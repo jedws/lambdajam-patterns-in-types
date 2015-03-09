@@ -1,5 +1,7 @@
 package challenge9
 
+import challenge0._
+
 /**
  * A data type that just makes it easier to work with parse states.
  *
@@ -152,7 +154,7 @@ object Parser {
    * scala> Parser.satisfy(c => c == 'h').run("hello")
    *  = Ok(ParseState(ello,h))
    */
-  def satisfy(pred: Char =>  Boolean): Parser[Char] =
+  def satisfy(pred: Char => Boolean): Parser[Char] =
     ???
 
   /**
@@ -311,12 +313,18 @@ object Parser {
    */
   def thisMany[A](n: Int, parse: Parser[A]): Parser[List[A]] =
     ???
+
+  implicit object ParserMonad extends Monad[Parser] {
+    def map[A, B](a: Parser[A])(f: A => B) = a map f
+    def bind[A, B](a: Parser[A])(f: A => Parser[B]) = a flatMap f
+    def point[A](a: => A) = value(a)
+  }
 }
 
 /**
- * *Challenge* Parse a naive personel record.
+ * *Challenge* Parse a naive personnel record.
  *
- * We have a set of personel records with a "special" format.
+ * We have a set of personnel records with a "special" format.
  *
  * Produce a person parser for a record.
  */
@@ -382,9 +390,6 @@ object PersonParser {
     ???
 
   def Data = List(
-    "Fred 32 123.456-1213# 301 cobblestone"
-  , "Barney 31 123.456.1214# 303 cobblestone"
-  , "Homer 39 555.123.939# 742 evergreen"
-  , "Flanders 39 555.123.939# 744 evergreen"
+    "Fred 32 123.456-1213# 301 cobblestone", "Barney 31 123.456.1214# 303 cobblestone", "Homer 39 555.123.939# 742 evergreen", "Flanders 39 555.123.939# 744 evergreen"
   )
 }

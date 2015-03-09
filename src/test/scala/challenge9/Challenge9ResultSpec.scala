@@ -2,7 +2,7 @@ package challenge9
 
 import challenge0._, EqualSyntax._
 
-object Challenge9Spec extends test.Spec {
+object Challenge9ResultSpec extends test.Spec {
   import Laws._
   import ResultArbitraries._
 
