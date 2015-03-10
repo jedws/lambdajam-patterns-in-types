@@ -98,6 +98,16 @@ object Challenge9ParserSpec extends test.Spec {
         case ParseState(rest, is) => rest === s && is.length === ps.length
       }
     }
+    "thisMany succeeds" ! prop { s: String =>
+      Parser.thisMany(s.length, Parser.character).run(s).success {
+        case ParseState(rest, is) => rest === "" && is === s.toList
+      }
+    }
+    "thisMany fails" ! prop { s: String =>
+      Parser.thisMany(s.length + 1, Parser.character).run(s).failed {
+        _ === Error.NotEnoughInput
+      }
+    }
   }
 
   def positive(i: Int) =
