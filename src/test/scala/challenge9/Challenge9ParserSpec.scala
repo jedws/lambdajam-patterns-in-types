@@ -17,15 +17,15 @@ object Challenge9ParserSpec extends test.Spec {
       Parser.failed[Int](e).run(s).failedLike { case `e` => true }
     }
     "parse a list of chars" ! prop { s: String =>
-      Parser.list(Parser.character).run(s).success(
-        state => state.input === "" && state.value === s.toList
-      )
+      Parser.list(Parser.character).run(s).success {
+        case ParseState("", list) => list === s.toList
+      }
     }
     "parse a list of chars failing if empty" ! prop { s: String =>
       Parser.list1(Parser.character).run(s).fold {
-        _ === Error.NotEnoughInput && s.isEmpty
+        case Error.NotEnoughInput if s.isEmpty => true
       } {
-        case ParseState(input, value) => input === "" && value === s.toList
+        case ParseState(rest, list) => rest === "" && list === s.toList
       }
     }
     "parse a char using a predicate" ! prop { s: String =>
@@ -44,20 +44,64 @@ object Challenge9ParserSpec extends test.Spec {
       val s = (if (i < 0) -i else i).toString
       Parser.digit.run(s).parsedChar(s)
     }
-    "digit fails to parse if not a number" ! prop { s: String =>
+    "digit parses a numeric char" ! prop { s: String =>
       Parser.digit.run(s).fold {
         case Error.NotEnoughInput if s.isEmpty                 => true
-        case Error.UnexpectedInput(u) if u === s.head.toString => u.length === 1 && u.head.isDigit
+        case Error.UnexpectedInput(u) if u === s.head.toString => u.length === 1 && !u.head.isDigit
       } {
-        case ParseState(input, value) => input === s.tail && value === s.head
+        case ParseState(rest, c) => rest === s.tail && c === s.head && c.isDigit
+      }
+    }
+    "natural parses a number correctly" ! prop { (i: Int, ss: String) =>
+      val s = (if (i < 0) -i else i) + ss
+      Parser.natural.run(s).success {
+        case ParseState(rest, n) => (n >= 0) && rest === ss
+      }
+    }
+    "natural parser" ! prop { s: String =>
+      Parser.natural.run(s).fold {
+        case Error.NotEnoughInput if s.isEmpty                 => true
+        case Error.UnexpectedInput(u) if u === s.head.toString => u.length === 1 && !u.head.isDigit
+      } {
+        case ParseState(rest, c) => rest === s.drop(c.toString.length) && c === s.take(c.toString.length).toInt
+      }
+    }
+    "space parses a space correctly" ! prop { s: String =>
+      Parser.space.run(" " + s).success {
+        case ParseState(rest, n) => (n === ' ') && rest === s
+      }
+    }
+    "space parser" ! prop { s: String =>
+      Parser.space.run(s).fold {
+        case Error.NotEnoughInput if s.isEmpty                 => true
+        case Error.UnexpectedInput(u) if u === s.head.toString => u.length === 1 && u.head != ' '
+      } {
+        case ParseState(rest, c) => rest === s.tail && c === ' '
       }
     }
 
-    "parse an alpha char" ! prop { (in: String) =>
-      (in, Parser.alpha.run("")) match {
-        case ("", r)                     => r.fold { _ === Error.NotEnoughInput } { _ => false }
-        case (s, r) if (s.head.isLetter) => r.fold { _ => false } { case ParseState(ss, a) => ss === s.tail && a === s.head }
-        case (s, r)                      => r.fold { _ === Error.UnexpectedInput(s.head.toString) } { _ => false }
+    "spaces1 parses spaces correctly" ! prop { (ii: Int, s: String) =>
+      val i = Math.min(Math.abs(ii) + 1, 100)
+      val spaces = Vector.fill(i)(' ').mkString
+      Parser.spaces1.run(spaces + s).success {
+        case ParseState(rest, n) => (n === spaces) && rest === s
+      }
+    }
+    "spaces1 parser" ! prop { s: String =>
+      Parser.spaces1.run(s).fold {
+        case Error.NotEnoughInput if s.isEmpty                 => true
+        case Error.UnexpectedInput(u) if u === s.head.toString => u.length === 1 && u.head != ' '
+      } {
+        case ParseState(rest, c) => rest === s.dropWhile { _ === ' ' } && c.forall { _ === ' ' }
+      }
+    }
+
+    "parse an alpha char" ! prop { (s: String) =>
+      Parser.alpha.run(s).fold {
+        case Error.NotEnoughInput if s.isEmpty            => true
+        case Error.UnexpectedInput(c) if !c.head.isLetter => true
+      } {
+        case ParseState(ss, c) => ss === s.tail && c === s.head
       }
     }
   }
@@ -75,7 +119,7 @@ object Challenge9ParserSpec extends test.Spec {
       p.fold {
         _ === Error.NotEnoughInput && s.isEmpty
       } {
-        state => state.input === s.tail && isChar(state.value) === s.head
+        case ParseState(rest, value) => rest === s.tail && isChar(value) === s.head
       }
   }
 
