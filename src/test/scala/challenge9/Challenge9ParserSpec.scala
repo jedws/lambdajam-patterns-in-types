@@ -45,12 +45,7 @@ object Challenge9ParserSpec extends test.Spec {
       Parser.digit.run(s).parsedChar(s)
     }
     "digit parses a numeric char" ! prop { s: String =>
-      Parser.digit.run(s).fold {
-        case Error.NotEnoughInput if s.isEmpty                 => true
-        case Error.UnexpectedInput(u) if u === s.head.toString => u.length === 1 && !u.head.isDigit
-      } {
-        case ParseState(rest, c) => rest === s.tail && c === s.head && c.isDigit
-      }
+      Parser.digit.run(s).parsedCharLike(s) { _.isDigit }
     }
     "natural parses a number correctly" ! prop { (i: Int, ss: String) =>
       val s = (if (i < 0) -i else i) + ss
@@ -72,14 +67,8 @@ object Challenge9ParserSpec extends test.Spec {
       }
     }
     "space parser" ! prop { s: String =>
-      Parser.space.run(s).fold {
-        case Error.NotEnoughInput if s.isEmpty                 => true
-        case Error.UnexpectedInput(u) if u === s.head.toString => u.length === 1 && u.head != ' '
-      } {
-        case ParseState(rest, c) => rest === s.tail && c === ' '
-      }
+      Parser.space.run(s).parsedCharLike(s) { _ === ' ' }
     }
-
     "spaces1 parses spaces correctly" ! prop { (ii: Int, s: String) =>
       val i = Math.min(Math.abs(ii) + 1, 100)
       val spaces = Vector.fill(i)(' ').mkString
@@ -95,31 +84,31 @@ object Challenge9ParserSpec extends test.Spec {
         case ParseState(rest, c) => rest === s.dropWhile { _ === ' ' } && c.forall { _ === ' ' }
       }
     }
-
+    "lower parser" ! prop { s: String =>
+      Parser.lower.run(s).parsedCharLike(s) { _.isLower }
+    }
     "parse an alpha char" ! prop { (s: String) =>
-      Parser.alpha.run(s).fold {
-        case Error.NotEnoughInput if s.isEmpty            => true
-        case Error.UnexpectedInput(c) if !c.head.isLetter => true
-      } {
-        case ParseState(ss, c) => ss === s.tail && c === s.head
-      }
+      Parser.alpha.run(s).parsedCharLike(s) { _.isLetter }
     }
   }
 
-  implicit class ParseStateOps[A](p: Result[ParseState[A]]) {
+  implicit class ParseStateOps[A](res: Result[ParseState[A]]) {
     def failed(f: Error => Boolean): Boolean =
-      p.fold { f } { _ => false }
+      res.fold { f } { _ => false }
     def failedLike(f: PartialFunction[Error, Boolean]): Boolean =
-      p.fold { e => if (f.isDefinedAt(e)) f(e) else false } { _ => false }
+      res.fold { e => if (f.isDefinedAt(e)) f(e) else false } { _ => false }
     def success(f: ParseState[A] => Boolean): Boolean =
-      p.fold { _ => false } { f }
+      res.fold { _ => false } { f }
     def successLike(f: PartialFunction[ParseState[A], Boolean]): Boolean =
-      p.fold { _ => false } { s => if (f.isDefinedAt(s)) f(s) else false }
+      res.fold { _ => false } { s => if (f.isDefinedAt(s)) f(s) else false }
     def parsedChar(s: String)(implicit isChar: A <:< Char): Boolean =
-      p.fold {
-        _ === Error.NotEnoughInput && s.isEmpty
+      parsedCharLike(s)(_ => true)
+    def parsedCharLike(s: String)(p: Char => Boolean)(implicit char: A <:< Char): Boolean =
+      res.fold {
+        case Error.NotEnoughInput if s.isEmpty      => true
+        case Error.UnexpectedInput(c) if !p(c.head) => true
       } {
-        case ParseState(rest, value) => rest === s.tail && isChar(value) === s.head
+        case ParseState(rest, value) => rest === s.tail && char(value) === s.head && p(char(value))
       }
   }
 
