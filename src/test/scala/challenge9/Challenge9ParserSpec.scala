@@ -41,14 +41,14 @@ object Challenge9ParserSpec extends test.Spec {
       }
     }
     "digit parses a number correctly" ! prop { i: Int =>
-      val s = (if (i < 0) -i else i).toString
+      val s = positive(i).toString
       Parser.digit.run(s).parsedChar(s)
     }
     "digit parses a numeric char" ! prop { s: String =>
       Parser.digit.run(s).parsedCharLike(s) { _.isDigit }
     }
     "natural parses a number correctly" ! prop { (i: Int, ss: String) =>
-      val s = (if (i < 0) -i else i) + ss
+      val s = positive(i) + ss
       Parser.natural.run(s).success {
         case ParseState(rest, n) => (n >= 0) && rest === ss
       }
@@ -87,10 +87,22 @@ object Challenge9ParserSpec extends test.Spec {
     "lower parser" ! prop { s: String =>
       Parser.lower.run(s).parsedCharLike(s) { _.isLower }
     }
-    "parse an alpha char" ! prop { (s: String) =>
+    "upper parser" ! prop { s: String =>
+      Parser.upper.run(s).parsedCharLike(s) { _.isUpper }
+    }
+    "parse an alpha char" ! prop { s: String =>
       Parser.alpha.run(s).parsedCharLike(s) { _.isLetter }
     }
+    "sequence succeeds" ! prop { (ps: List[Parser[Int]], s: String) =>
+      Parser.sequence(ps).run(s).success {
+        case ParseState(rest, is) => rest === s && is.length === ps.length
+      }
+    }
   }
+
+  def positive(i: Int) =
+    if (i == Int.MinValue) Int.MaxValue
+    else Math.abs(i)
 
   implicit class ParseStateOps[A](res: Result[ParseState[A]]) {
     def failed(f: Error => Boolean): Boolean =
