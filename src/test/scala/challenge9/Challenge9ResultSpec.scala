@@ -20,5 +20,12 @@ object Challenge9ResultSpec extends test.Spec {
     "fold with ok" ! prop { (i: Int) =>
       Result.ok[Int](i).fold { _ => false } { _ === i }
     }
+    "sequence" ! prop { (rs: List[Result[Int]]) =>
+      Result.sequence(rs).fold {
+        case e => rs.collectFirst { case Result.Fail(err) => err === e }.getOrElse(false)
+      } {
+        _ === rs.collect { case Result.Ok(i) => i }
+      }
+    }
   }
 }
