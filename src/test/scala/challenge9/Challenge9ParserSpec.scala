@@ -16,6 +16,9 @@ object Challenge9ParserSpec extends test.Spec {
     "parse a failed" ! prop { (e: Error, s: String) =>
       Parser.failed[Int](e).run(s).failedLike { case `e` => true }
     }
+    "parse a character" ! prop { s: String =>
+      Parser.character.run(s).parsedChar(s)
+    }
     "parse a list of chars" ! prop { s: String =>
       Parser.list(Parser.character).run(s).success {
         case ParseState("", list) => list === s.toList
@@ -31,10 +34,10 @@ object Challenge9ParserSpec extends test.Spec {
     "parse a char using a predicate" ! prop { s: String =>
       Parser.satisfy { c => !s.isEmpty && c == s.head }.run(s).parsedChar(s)
     }
-    "parse a char correctly" ! prop { s: String =>
+    "parse a specific char correctly" ! prop { s: String =>
       Parser.is(if (s.isEmpty) 'a' else s.head).run(s).parsedChar(s)
     }
-    "parse a char failing" ! prop { s: String =>
+    "parse a specific char failing" ! prop { s: String =>
       Parser.is(if (s.isEmpty) 'a' else (s.head + 1).toChar).run(s).failedLike {
         case Error.NotEnoughInput if s.isEmpty                 => true
         case Error.UnexpectedInput(u) if u === s.head.toString => true
