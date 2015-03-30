@@ -28,6 +28,12 @@ object Monoid {
   implicit class MonoidOps[A: Monoid](a: A) {
     def |+|(b: A) = Monoid[A].append(a, b)
   }
+
+  def liftMonoid[C[_]: Monad, A: Monoid]: Monoid[C[A]] =
+    new Monoid[C[A]] {
+      def zero = ???
+      def append(l: C[A], r: => C[A]) = ???
+    }
 }
 
 object MonoidLaws {

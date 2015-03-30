@@ -7,7 +7,7 @@ import challenge0._, EqualSyntax._
  * writer content with the production of a value in some effect M.
  */
 case class WriterT[M[_], W, A](run: M[(W, A)]) {
-
+  import Monad._
   /*
    * Exercise 6.1:
    *
@@ -64,7 +64,6 @@ object WriterT {
   def tell[M[_]: Monad, W](w: W): WriterT[M, W, Unit] =
     ???
 
-
   class WriterT_[M[_], W] {
     type l[a] = WriterT[M, W, a]
   }
@@ -90,7 +89,7 @@ object WriterT {
    *
    * Hint: Try using WriterT constructor and Monad[M].map(ga).
    */
-  implicit def WriterTMonadTrans[W:Monoid]: MonadTrans[WriterT__[W]#l] = new MonadTrans[WriterT__[W]#l] {
+  implicit def WriterTMonadTrans[W: Monoid]: MonadTrans[WriterT__[W]#l] = new MonadTrans[WriterT__[W]#l] {
     def liftM[M[_]: Monad, A](ga: M[A]): WriterT[M, W, A] =
       ???
   }
