@@ -16,9 +16,9 @@ object ParserArbitraries {
       res.fold { f } { _ => false }
     def failedLike(f: PartialFunction[Error, Boolean]): Boolean =
       res.fold { e => if (f.isDefinedAt(e)) f(e) else false } { _ => false }
-    def success(f: ParseState[A] => Boolean): Boolean =
+    def succeeded(f: ParseState[A] => Boolean): Boolean =
       res.fold { _ => false } { f }
-    def successLike(f: PartialFunction[ParseState[A], Boolean]): Boolean =
+    def succeededLike(f: PartialFunction[ParseState[A], Boolean]): Boolean =
       res.fold { _ => false } { s => if (f.isDefinedAt(s)) f(s) else false }
     def parsedChar(s: String)(implicit isChar: A <:< Char): Boolean =
       parsedCharLike(s)(_ => true)
@@ -26,6 +26,7 @@ object ParserArbitraries {
       res.fold {
         case Error.NotEnoughInput if s.isEmpty      => true
         case Error.UnexpectedInput(c) if !p(c.head) => true
+        case _                                      => false
       } {
         case ParseState(rest, value) => rest === s.tail && char(value) === s.head && p(char(value))
       }

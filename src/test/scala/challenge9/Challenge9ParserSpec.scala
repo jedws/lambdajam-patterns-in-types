@@ -11,7 +11,7 @@ object Challenge9ParserSpec extends test.Spec {
     "satisfy monad laws" ! monad.laws[Parser]
 
     "parse a value" ! prop { (i: Int, s: String) =>
-      Parser.value(i).run(s).successLike { case ParseState(`s`, `i`) => true }
+      Parser.value(i).run(s).succeededLike { case ParseState(`s`, `i`) => true }
     }
     "parse a failed" ! prop { (e: Error, s: String) =>
       Parser.failed[Int](e).run(s).failedLike { case `e` => true }
@@ -20,7 +20,7 @@ object Challenge9ParserSpec extends test.Spec {
       Parser.character.run(s).parsedChar(s)
     }
     "parse a list of chars" ! prop { s: String =>
-      Parser.list(Parser.character).run(s).success {
+      Parser.list(Parser.character).run(s).succeeded {
         case ParseState("", list) => list === s.toList
       }
     }
@@ -53,7 +53,7 @@ object Challenge9ParserSpec extends test.Spec {
     "natural parses a number correctly" ! prop { (i: Int, ss: String) =>
       val pos = positive(i)
       val s = pos + "!" + ss
-      Parser.natural.run(s).success {
+      Parser.natural.run(s).succeeded {
         case ParseState(rest, `pos`) => rest.tail === ss
       }
     }
@@ -66,7 +66,7 @@ object Challenge9ParserSpec extends test.Spec {
       }
     }
     "space parses a space correctly" ! prop { s: String =>
-      Parser.space.run(" " + s).success {
+      Parser.space.run(" " + s).succeeded {
         case ParseState(rest, n) => (n === ' ') && rest === s
       }
     }
@@ -74,9 +74,12 @@ object Challenge9ParserSpec extends test.Spec {
       Parser.space.run(s).parsedCharLike(s) { _ === ' ' }
     }
     "spaces1 parses spaces correctly" ! prop { (ii: Int, s: String) =>
-      val i = Math.min(Math.abs(ii) + 1, 100)
+      import math._
+      val i = min(abs(max(ii, -100)), 100) + 1
       val spaces = Vector.fill(i)(' ').mkString
-      Parser.spaces1.run(spaces + s).success {
+      val p = Parser.spaces1.run(spaces + s)
+      println(s"ii=$ii – s=$s – p=$p")
+      p.succeeded {
         case ParseState(rest, n) => (n === spaces) && rest === s
       }
     }
@@ -98,12 +101,12 @@ object Challenge9ParserSpec extends test.Spec {
       Parser.alpha.run(s).parsedCharLike(s) { _.isLetter }
     }
     "sequence succeeds" ! prop { (ps: List[Parser[Int]], s: String) =>
-      Parser.sequence(ps).run(s).success {
+      Parser.sequence(ps).run(s).succeeded {
         case ParseState(rest, is) => rest === s && is.length === ps.length
       }
     }
     "thisMany succeeds" ! prop { s: String =>
-      Parser.thisMany(s.length, Parser.character).run(s).success {
+      Parser.thisMany(s.length, Parser.character).run(s).succeeded {
         case ParseState(rest, is) => rest === "" && is === s.toList
       }
     }
