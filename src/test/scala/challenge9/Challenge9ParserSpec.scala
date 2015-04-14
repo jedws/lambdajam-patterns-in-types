@@ -77,9 +77,7 @@ object Challenge9ParserSpec extends test.Spec {
       import math._
       val i = min(abs(max(ii, -100)), 100) + 1
       val spaces = Vector.fill(i)(' ').mkString
-      val p = Parser.spaces1.run(spaces + s)
-      println(s"ii=$ii – s=$s – p=$p")
-      p.succeeded {
+      Parser.spaces1.run(spaces + s).succeeded {
         case ParseState(rest, n) => (n === spaces) && rest === s
       }
     }
