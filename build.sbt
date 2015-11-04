@@ -1,11 +1,13 @@
 name := "introduction-to-fp-in-scala"
 
-scalaVersion := "2.11.6"
+scalaVersion := "2.11.7"
 
 libraryDependencies ++= Seq(
-  "org.scalaz" %% "scalaz-core" % "7.1.1",
-  "org.specs2" %% "specs2" % "2.4.16" % "test",
-  "org.scalacheck" %% "scalacheck" % "1.12.2" % "test"
+  "org.scalaz"     %% "scalaz-core"       % "7.2.0-M4"
+, "org.scalaz"     %% "scalaz-effect"     % "7.2.0-M4"
+, "org.specs2"     %% "specs2-core"       % "3.6.5"  % "test"
+, "org.specs2"     %% "specs2-scalacheck" % "3.6.5"  % "test"
+, "org.scalacheck" %% "scalacheck"        % "1.12.5" % "test"
 )
 
 resolvers ++= Seq(
