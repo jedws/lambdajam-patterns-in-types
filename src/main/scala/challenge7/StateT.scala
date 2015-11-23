@@ -93,16 +93,8 @@ object StateT {
   def put[M[_]: Monad, S](s: S): StateT[M, S, Unit] =
     ???
 
-  class StateT_[F[_], S] {
-    type l[a] = StateT[F, S, a]
-  }
-
-  class StateT__[S] {
-    type l[f[_], a] = StateT[f, S, a]
-  }
-
-  implicit def StateTMonad[F[_], S](implicit F: Monad[F]): Monad[StateT_[F, S]#l] =
-    new Monad[StateT_[F, S]#l] {
+  implicit def StateTMonad[F[_], S](implicit F: Monad[F]): Monad[StateT[F, S, ?]] =
+    new Monad[StateT[F, S, ?]] {
       def point[A](a: => A) = StateT(s => F.point((s, a)))
       def bind[A, B](a: StateT[F, S, A])(f: A => StateT[F, S, B]) = a flatMap f
       def map[A, B](a: StateT[F, S, A])(f: A => B) = a map f
@@ -115,8 +107,9 @@ object StateT {
    *
    * Hint: Try using StateT constructor and Monad[M].map(ga).
    */
-  implicit def StateTMonadTrans[S]: MonadTrans[StateT__[S]#l] = new MonadTrans[StateT__[S]#l] {
-    def liftM[M[_]: Monad, A](ga: M[A]): StateT[M, S, A] =
-      ???
-  }
+  implicit def StateTMonadTrans[S]: MonadTrans[StateT[?[_], S, ?]] = 
+    new MonadTrans[StateT[?[_], S, ?]] {
+      def liftM[M[_]: Monad, A](ga: M[A]): StateT[M, S, A] =
+        ???
+    }
 }

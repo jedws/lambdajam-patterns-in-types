@@ -69,16 +69,9 @@ object ReaderT {
   def local[M[_], R, A](f: R => R)(reader: ReaderT[M, R, A]): ReaderT[M, R, A] =
     ???
 
-  class ReaderT_[F[_], R] {
-    type l[a] = ReaderT[F, R, a]
-  }
 
-  class ReaderT__[R] {
-    type l[f[_], a] = ReaderT[f, R, a]
-  }
-
-  implicit def ReaderTMonad[F[_], R](implicit F: Monad[F]): Monad[ReaderT_[F, R]#l] =
-    new Monad[ReaderT_[F, R]#l] {
+  implicit def ReaderTMonad[F[_], R](implicit F: Monad[F]): Monad[ReaderT[F, R, ?]] =
+    new Monad[ReaderT[F, R, ?]] {
       def point[A](a: => A) = ReaderT(_ => F.point(a))
       def bind[A, B](a: ReaderT[F, R, A])(f: A => ReaderT[F, R, B]) = a flatMap f
       def map[A, B](a: ReaderT[F, R, A])(f: A => B) = a map f
@@ -91,7 +84,7 @@ object ReaderT {
    *
    * Hint: Try using ReaderT constructor.
    */
-  implicit def ReaderTMonadTrans[R]: MonadTrans[ReaderT__[R]#l] = new MonadTrans[ReaderT__[R]#l] {
+  implicit def ReaderTMonadTrans[R]: MonadTrans[ReaderT[?[_], R, ?]] = new MonadTrans[ReaderT[?[_], R, ?]] {
     def liftM[M[_]: Monad, A](ga: M[A]): ReaderT[M, R, A] =
       ???
   }

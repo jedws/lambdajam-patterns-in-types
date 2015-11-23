@@ -8,7 +8,7 @@ object Challenge5Spec extends test.Spec {
   import ReaderTArbitraries._
 
   "ReaderT" should {
-    "satisfy monad laws" ! monad.laws[ReaderT_[Id, Int]#l]
+    "satisfy monad laws" ! monad.laws[ReaderT[Id, Int, ?]]
 
     "return context for ask" ! prop((i: Int) =>
       ask[Id, Int].run(i) === Id(i))

@@ -8,7 +8,7 @@ object Challenge7Spec extends test.Spec {
   import StateTArbitraries._
 
   "StateT" should {
-    "satisfy monad laws" ! monad.laws[StateT_[Id, Int]#l]
+    "satisfy monad laws" ! monad.laws[StateT[Id, Int, ?]]
 
     "value should not modify state" ! prop((s: String, i: Int) =>
       StateT.value[Id, Int, String](s).run(i) === Id(i, s))

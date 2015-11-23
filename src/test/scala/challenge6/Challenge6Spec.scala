@@ -10,7 +10,7 @@ object Challenge6Spec extends test.Spec {
   "WriterT" should {
     "satisfy equal laws" ! equal.laws[WriterT[Id, List[Int], Int]]
 
-    "satisfy monad laws" ! monad.laws[WriterT_[Id, List[Int]]#l]
+    "satisfy monad laws" ! monad.laws[WriterT[Id, List[Int], ?]]
 
     "return zero for value" ! prop((i: Int) =>
       WriterT.value[Id, List[Int], Int](i).run === Id((Monoid[List[Int]].zero, i)))
