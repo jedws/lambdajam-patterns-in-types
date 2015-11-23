@@ -31,7 +31,7 @@ object Monoid {
 
   def liftMonoid[C[_]: Monad, A: Monoid]: Monoid[C[A]] =
     new Monoid[C[A]] {
-      def zero = ???
+      def zero = Monad[C].point(Monoid[A].zero)
       def append(l: C[A], r: => C[A]) = ???
     }
 }

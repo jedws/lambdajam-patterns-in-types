@@ -69,13 +69,8 @@ object Reader {
   def local[R, A](f: R => R)(reader: Reader[R, A]): Reader[R, A] =
     ???
 
-  /** see aside below, this is a convenience type for partially applying R to Reader[R, A] */
-  class Reader_[R] {
-    type l[a] = Reader[R, a]
-  }
-
-  implicit def ReaderMonad[R]: Monad[Reader_[R]#l] =
-    new Monad[Reader_[R]#l] {
+  implicit def ReaderMonad[R]: Monad[Reader[R, ?]] =
+    new Monad[Reader[R, ?]] {
       def point[A](a: => A): Reader[R, A] = value(a)
       def bind[A, B](r: Reader[R, A])(f: A => Reader[R, B]) = r flatMap f
       def map[A, B](r: Reader[R, A])(f: A => B) = r map f
@@ -94,17 +89,4 @@ object Reader {
       def append(a: Reader[R, A], b: => Reader[R, A]) =
         ???
     }
-
-
-  // Aside: You may be unfamliar with the type trick above, Reader_[R]#l. but
-  //        may have seen its more common (inline) form, refered to as a
-  //        'type lambda', i.e.
-  //           ({type λ[α] = Reader[R, α]})#λ
-  //
-  //        What this does (in both examples) is use path dependent types to
-  //        express partial application of a type constructor. In the example
-  //        Reader is a type constructor that takes two arguments, R and A, but we want
-  //        to refer to the monad, Reader[R, _] that only has a single type
-  //        argument. The 'type lambda' version creeates an anonymous structural
-  //        type, the long form uses a standard named class.
 }
