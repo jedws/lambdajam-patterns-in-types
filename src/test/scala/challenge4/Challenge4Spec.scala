@@ -8,7 +8,7 @@ object Challenge4Spec extends test.Spec {
   import StateArbitraries._
 
   "State" should {
-    "satisfy monad laws" ! monad.laws[State_[Int]#l]
+    "satisfy monad laws" ! monad.laws[State[Int, ?]]
 
     "value should not modify state (guaranteed by types)" ! prop { (s: String, i: Int) =>
       State.value[Int, String](s).run(i) === (i, s)
