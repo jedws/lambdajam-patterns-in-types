@@ -61,12 +61,8 @@ object Writer {
   def writer[W, A](a: A)(w: W): Writer[W, A] =
     Writer(w, a)
 
-  class Writer_[W] {
-    type l[a] = Writer[W, a]
-  }
-
-  implicit def WriterMonad[W: Monoid]: Monad[Writer_[W]#l] =
-    new Monad[Writer_[W]#l] {
+  implicit def WriterMonad[W: Monoid]: Monad[Writer[W, ?]] =
+    new Monad[Writer[W, ?]] {
       def point[A](a: => A) = value[W, A](a)
       def bind[A, B](a: Writer[W, A])(f: A => Writer[W, B]) = a flatMap f
       def map[A, B](a: Writer[W, A])(f: A => B) = a map f
